@@ -1,6 +1,8 @@
 package com.nowcoder.community2.service;
 
+import com.nowcoder.community2.dao.LoginTicketMapper;
 import com.nowcoder.community2.dao.UserMapper;
+import com.nowcoder.community2.entity.LoginTicket;
 import com.nowcoder.community2.entity.User;
 import com.nowcoder.community2.util.CommunityConstant;
 import com.nowcoder.community2.util.CommunityUtil;
@@ -30,49 +32,53 @@ public class UserService implements CommunityConstant {
     @Autowired
     TemplateEngine templateEngine;
 
-//    访问激活码网址需要的链接地址
+    //    访问激活码网址需要的链接地址
     @Value("${server.servlet.context-path}")
     String contextPath;
 
     @Value("${community.path.domain}")
     String domain;
 
-    public User findUserById(int userId){
+    @Autowired
+    LoginTicketMapper loginTicketMapper;
+
+    public User findUserById(int userId) {
         return userMapper.selectById(userId);
     }
 
     /**
      * 开发注册功能
+     *
      * @param user
      * @return
      */
-    public Map<String, Object> register(User user){
+    public Map<String, Object> register(User user) {
         Map<String, Object> map = new HashMap<>();
 //        首先对数据进行一个校验
 //        如果用户为空，就出现了异常，直接报错，因为正常情况用户为空不可能走到这里
-        if(user == null){
+        if (user == null) {
             throw new IllegalArgumentException("参数不能位空!");
         }
-        if(StringUtils.isBlank(user.getUsername())){
+        if (StringUtils.isBlank(user.getUsername())) {
             map.put("usernameMsg", "用户名不能为空！");
             return map;
         }
-        if(StringUtils.isBlank(user.getPassword())){
+        if (StringUtils.isBlank(user.getPassword())) {
             map.put("passwordMsg", "密码不能为空！");
             return map;
         }
-        if(StringUtils.isBlank(user.getEmail())){
+        if (StringUtils.isBlank(user.getEmail())) {
             map.put("emailMsg", "邮箱不能为空！");
             return map;
         }
 //        都不为空了，就查看数据库中有没有已经存在相同的数据
         User u = userMapper.selectByName(user.getUsername());
-        if(u != null){
+        if (u != null) {
             map.put("usernameMsg", "该账号已存在！");
             return map;
         }
         u = userMapper.selectByEmail(user.getEmail());
-        if(u != null){
+        if (u != null) {
             map.put("emailMsg", "该邮箱已经被注册！");
             return map;
         }
@@ -108,21 +114,72 @@ public class UserService implements CommunityConstant {
 
     /**
      * 激活用户业务
+     *
      * @param userId 需要激活的用户id
-     * @param code 传入的激活码
+     * @param code   传入的激活码
      * @return
      */
-    public int activation(int userId, String code){
+    public int activation(int userId, String code) {
         User user = userMapper.selectById(userId);
-        if(user.getStatus() == 1){
+        if (user.getStatus() == 1) {
             return ACTIVATION_REPEAT;
-        }else if(user.getActivationCode().equals(code)){
+        } else if (user.getActivationCode().equals(code)) {
 //            status为0，还要进行判断，看激活码是否正确，如果正确，修改status为1，否则，激活码错误
             userMapper.updateStatus(userId, 1);
             return ACTIVATION_SUCCESS;
-        }else{
+        } else {
 //            没激活，但是同时激活码错误，因此激活失败
             return ACTIVATION_FAILURE;
         }
+    }
+
+    /**
+     * 登录业务
+     *
+     * @param username
+     * @param password
+     * @param expiredSeconds 登录凭证过期时间，注意类型为long，如果为int会造成溢出，从而出现错误！
+     * @return
+     */
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
+        Map<String, Object> map = new HashMap<>();
+
+//        首先查看用户是否存在
+        User user = userMapper.selectByName(username);
+        if (user == null) {
+            map.put("usernameMsg", "该账号不存在！");
+            return map;
+        }
+//        存在之后，查看该账户是否激活
+        if (user.getStatus() == 0) {
+            map.put("usernameMsg", "该账号未激活！");
+            return map;
+        }
+//        用户可用，就检查密码是否正确
+//        由于添加密码的时候我们进行过加密，所以需要加密之后再和数据库中用户的密码进行比较
+        password = CommunityUtil.md5(password + user.getSalt());
+        if (!user.getPassword().equals(password)) {
+            map.put("passwordMsg", "密码错误！");
+            return map;
+        }
+
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.generateUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+//        将登录凭证传递给客户端，因为后续客户端进行操作需要使用这个ticket
+        map.put("ticket", loginTicket.getTicket());
+        return map;
+    }
+
+    /**
+     * 退出登录业务，根据传入的凭证修改对应凭证的状态为1，表示失效
+     * @param ticket
+     */
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
     }
 }

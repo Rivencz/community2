@@ -1,23 +1,45 @@
 package com.nowcoder.community2.controller;
 
+import com.google.code.kaptcha.Producer;
+import com.nowcoder.community2.config.KaptchaConfig;
 import com.nowcoder.community2.entity.User;
 import com.nowcoder.community2.service.UserService;
 import com.nowcoder.community2.util.CommunityConstant;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
 
 @Controller
 public class LoginController implements CommunityConstant {
 
+    public static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    Producer kaptchaProducer;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     /**
      * 访问注册界面
@@ -80,5 +102,79 @@ public class LoginController implements CommunityConstant {
         return "/site/operate-result";
     }
 
+    /**
+     * 用于返回生成的验证码，图片通过response返回到浏览器
+     *
+     * @param response
+     * @param session  由于验证码需要在用户提交表单之后再次使用，所以将它保存到session中供后续使用
+     */
+    @RequestMapping(value = "/kaptcha", method = RequestMethod.GET)
+    public void getKaptcha(HttpServletResponse response, HttpSession session) {
 
+//        根据我们的配置随机生成一个字符串，并存入到session中
+        String text = kaptchaProducer.createText();
+        session.setAttribute("kaptcha", text);
+//        将该字符串转换成图片格式，并返回到客户端
+        BufferedImage image = kaptchaProducer.createImage(text);
+        response.setContentType("image/png");
+
+        try {
+            OutputStream os = response.getOutputStream();
+            ImageIO.write(image, "png", os);
+        } catch (IOException e) {
+            logger.error("响应验证码失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 处理登录表单
+     * @param model
+     * @param username 输入的用户名
+     * @param password 输入的的密码
+     * @param code 输入的验证码
+     * @param rememberme 用户是否勾选记住我
+     * @param response 用来返回一个cookie给浏览器
+     * @param session 用来获取存放在服务器中的验证码，和用户输入的进行对比
+     * @return
+     */
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public String login(Model model, String username, String password, String code,
+                        boolean rememberme,HttpServletResponse response, HttpSession session) {
+//        先判断验证码是否正确
+        String kaptcha = session.getAttribute("kaptcha").toString();
+        if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
+            model.addAttribute("codeMsg", "验证码错误！");
+            return "/site/login";
+        }
+//        在调用业务层代码进行业务处理之前，先根据是否勾选记住我来设置不同的过期时间
+        int expiredSeconds = rememberme ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
+        Map<String, Object> map = userService.login(username, password, expiredSeconds);
+//        如果map中有ticket，说明登录成功，返回了一个登录凭证
+        if(map.containsKey("ticket")){
+//            将这个凭证作为cookie传给浏览器，以后服务器识别浏览器就靠这个凭证
+            Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
+//            设置cookie有效路径和失效时间
+            cookie.setPath(contextPath);
+            cookie.setMaxAge(expiredSeconds);
+            response.addCookie(cookie);
+            return "redirect:/index";
+        }else{
+//            否则，说明登录失败，重新返回到登陆界面
+            model.addAttribute("usernameMsg", map.get("usernameMsg"));
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            return "/site/login";
+        }
+    }
+
+    /**
+     * 退出功能
+     * @param ticket 根据登录凭证修改对应凭证的状态
+     * @return
+     */
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket){
+        userService.logout(ticket);
+//        重定向到登陆界面
+        return "redirect:/login";
+    }
 }

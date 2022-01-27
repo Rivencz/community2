@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,5 +87,39 @@ public class Alpha {
         list.add(map1);
         list.add(map2);
         return list;
+    }
+
+//    Cookie和Session测试
+    @RequestMapping("/cookie/set")
+    @ResponseBody
+    public String setCookie(HttpServletResponse response){
+        Cookie cookie = new Cookie("keyid", "123321");
+        response.addCookie(cookie);
+        cookie.setPath("/community/alpha");
+        cookie.setMaxAge(60 * 60 * 10);
+        return "set cookie";
+    }
+
+    @RequestMapping("/cookie/get")
+    @ResponseBody
+    public String getCookie(@CookieValue("keyid") String value){
+        System.out.println(value);
+
+        return "get cookie";
+    }
+
+    @RequestMapping("/session/set")
+    @ResponseBody
+    public String setSession(HttpSession session){
+        session.setAttribute("name", "riven");
+
+        return "set session";
+    }
+
+    @RequestMapping("/session/get")
+    @ResponseBody
+    public String getSession(HttpSession session){
+        System.out.println(session.getAttribute("name"));
+        return "get session";
     }
 }
