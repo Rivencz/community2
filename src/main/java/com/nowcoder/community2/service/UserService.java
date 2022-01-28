@@ -177,9 +177,14 @@ public class UserService implements CommunityConstant {
 
     /**
      * 退出登录业务，根据传入的凭证修改对应凭证的状态为1，表示失效
+     *
      * @param ticket
      */
     public void logout(String ticket) {
         loginTicketMapper.updateStatus(ticket, 1);
+    }
+
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
     }
 }
