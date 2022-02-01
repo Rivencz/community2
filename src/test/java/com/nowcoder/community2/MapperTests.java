@@ -91,6 +91,7 @@ public class MapperTests {
         System.out.println(i);
 
         System.out.println(loginTicketMapper.selectByTicket("1234321"));
+
     }
 
 }
