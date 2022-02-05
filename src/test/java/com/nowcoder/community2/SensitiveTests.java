@@ -14,7 +14,7 @@ public class SensitiveTests {
 
     @Test
     public void test1(){
-        String text = "哈哈，我超爱赌博嫖娼以及吸毒！哈哈我真的很感恩这个世界riven，我和";
+        String text = "哈哈，你是不是想赌。博和嫖-娼以及吸*毒！哈哈真的很感x恩这个世界";
 
         String filter = sensitiveFilter.filter(text);
         System.out.println(filter);

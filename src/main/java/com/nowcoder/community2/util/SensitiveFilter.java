@@ -37,7 +37,6 @@ public class SensitiveFilter {
             while ((keyword = bufferedReader.readLine()) != null) {
 //                调用对应方法，将该字符串添加到前缀树中
                 this.addKeyword(keyword);
-                System.out.println(keyword);
             }
         } catch (IOException e) {
             logger.error("加载文件失败！" + e.getMessage());
@@ -94,7 +93,6 @@ public class SensitiveFilter {
 //                    否则，说明正在寻找符合条件的过滤词，
                     position++;
                 }
-                System.out.println(res);
             } else {
 //                遍历到结尾了，也没发现敏感词，就让begin+1从新的开头进行遍历
                 res.append(text.charAt(begin));

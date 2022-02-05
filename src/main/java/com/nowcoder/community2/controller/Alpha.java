@@ -1,6 +1,7 @@
 package com.nowcoder.community2.controller;
 
 import com.nowcoder.community2.service.AlphaService;
+import com.nowcoder.community2.util.CommunityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -121,5 +122,17 @@ public class Alpha {
     public String getSession(HttpSession session){
         System.out.println(session.getAttribute("name"));
         return "get session";
+    }
+
+    @RequestMapping(value = "/ajax", method = RequestMethod.POST)
+    @ResponseBody
+    public String getJSON(String name, int age){
+        System.out.println(name);
+        System.out.println(age);
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("age", age);
+
+        return CommunityUtil.getJSONString(0, "发送成功！", map);
     }
 }

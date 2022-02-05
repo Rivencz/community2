@@ -1,10 +1,14 @@
 package com.nowcoder.community2.controller;
 
 import com.nowcoder.community2.annotation.LoginRequired;
+import com.nowcoder.community2.entity.DiscussPost;
 import com.nowcoder.community2.entity.User;
+import com.nowcoder.community2.service.DiscussPostService;
 import com.nowcoder.community2.service.UserService;
 import com.nowcoder.community2.util.CommunityUtil;
 import com.nowcoder.community2.util.HostHolder;
+import com.nowcoder.community2.util.SensitiveFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 @Controller
 //添加一个访问路径
@@ -130,4 +135,5 @@ public class UserController {
             logger.error("读取头像失败！" + e.getMessage());
         }
     }
+
 }

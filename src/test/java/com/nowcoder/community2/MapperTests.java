@@ -71,14 +71,33 @@ public class MapperTests {
     }
 
     @Test
+    public void insertDiscussPost(){
+        DiscussPost discussPost = new DiscussPost();
+        discussPost.setUserId(149);
+        discussPost.setTitle("求职问答贴2");
+        discussPost.setContent("知无不言言无不尽");
+        discussPost.setType(0);
+        discussPost.setStatus(0);
+        discussPost.setCreateTime(new Date());
+        discussPost.setScore(0);
+        int i = discussPostMapper.insertDiscussPost(discussPost);
+        System.out.println(i);
+        List<DiscussPost> list = discussPostMapper.selectDiscussPosts(149, 0, 10);
+        for (DiscussPost post : list) {
+            System.out.println(post);
+        }
+    }
+
+    @Test
     public void insertLoginTicket(){
         LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setUserId(101);
-        loginTicket.setTicket("1234321");
+        loginTicket.setUserId(102);
+        loginTicket.setTicket("123421314543");
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24));
         int i = loginTicketMapper.insertLoginTicket(loginTicket);
         System.out.println(i);
+
 
     }
 

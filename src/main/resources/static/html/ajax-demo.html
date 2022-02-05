@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajax</title>
+</head>
+<body>
+    <p>
+        <input type="submit" value="发送" onclick="send()">
+    </p>
+    <!--这个异步发送请求的格式是固定的，可以直接背下来！-->
+    <script>
+        function send() {
+            $.post(
+                //访问路径
+                "/community/alpha/ajax",
+                //请求携带的参数
+                {"name":"张三","age":23},
+                //服务器返回的数据会回调给以下函数，数据会传递给data
+                function (data) {
+                    console.log(typeof(data));
+                    console.log(data);
+
+                    // 转换成json对象
+                    data = $.parseJSON(data);
+                    console.log(typeof(data));
+                    console.log(data);
+                    console.log(data.code);
+                    console.log(data.msg);
+                    console.log(data.name);
+                    console.log(data.age);
+                }
+            )
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
