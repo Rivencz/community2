@@ -45,9 +45,9 @@ public class DiscussPostController implements CommunityConstant {
             return CommunityUtil.getJSONString(403, "请先登录！");
         }
 //        这个是自己写的异常处理，后续会统一处理异常
-        if(StringUtils.isBlank(title) || StringUtils.isBlank(content)){
-            return CommunityUtil.getJSONString(403, "标题或内容不能为空!");
-        }
+//        if(StringUtils.isBlank(title) || StringUtils.isBlank(content)){
+//            return CommunityUtil.getJSONString(403, "标题或内容不能为空!");
+//        }
         DiscussPost post = new DiscussPost();
         post.setUserId(user.getId());
         post.setTitle(title);
