@@ -15,7 +15,7 @@ function send_letter() {
 			if(data.code == 0){
 				$("#hintBody").text("发送成功！");
 			}else{
-				$("#hintBody").text("发送失败！");
+				$("#hintBody").text(data.msg);
 			}
 			$("#hintModal").modal("show");
 			setTimeout(function () {

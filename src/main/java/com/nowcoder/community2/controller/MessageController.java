@@ -76,8 +76,6 @@ public class MessageController {
         page.setRows(messageService.findLetterCount(conversationId));
         page.setPath("/letter/detail/" + conversationId);
 
-//        记录未读信息对应的id
-        List<Integer> unreadList = new ArrayList<>();
         List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> letters = new ArrayList<>();
         if (letterList != null) {
