@@ -4,6 +4,7 @@ import com.nowcoder.community2.annotation.LoginRequired;
 import com.nowcoder.community2.entity.DiscussPost;
 import com.nowcoder.community2.entity.User;
 import com.nowcoder.community2.service.DiscussPostService;
+import com.nowcoder.community2.service.LikeService;
 import com.nowcoder.community2.service.UserService;
 import com.nowcoder.community2.util.CommunityUtil;
 import com.nowcoder.community2.util.HostHolder;
@@ -36,10 +37,13 @@ public class UserController {
     private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    HostHolder hostHolder;
+    private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
 
     @Value("${community.path.upload}")
     private String uploadPath;
@@ -134,6 +138,24 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取头像失败！" + e.getMessage());
         }
+    }
+
+    /**
+     * 用户个人主页，由于不一定打开的是当前用户的主页，点击帖子。。等头像都可以查看对应用户个人主页，所以要传入一个userId
+     * @param userId
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model){
+        User user = userService.findUserById(userId);
+        if(user == null){
+            throw new RuntimeException("该用户不存在！");
+        }
+        model.addAttribute("user", user);
+        int likeCount = likeService.findUserLikeCount(userId);
+        model.addAttribute("likeCount", likeCount);
+        return "site/profile";
     }
 
 }

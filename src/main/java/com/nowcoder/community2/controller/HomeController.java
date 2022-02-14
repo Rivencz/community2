@@ -4,7 +4,10 @@ import com.nowcoder.community2.entity.DiscussPost;
 import com.nowcoder.community2.entity.Page;
 import com.nowcoder.community2.entity.User;
 import com.nowcoder.community2.service.DiscussPostService;
+import com.nowcoder.community2.service.LikeService;
 import com.nowcoder.community2.service.UserService;
+import com.nowcoder.community2.util.CommunityConstant;
+import com.nowcoder.community2.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,13 +20,16 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class HomeController {
+public class HomeController implements CommunityConstant {
 
     @Autowired
     private DiscussPostService discussPostService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page) {
@@ -41,6 +47,9 @@ public class HomeController {
                 User user = userService.findUserById(discussPost.getUserId());
                 map.put("user", user);
                 map.put("post", discussPost);
+//                后续加更1：为了保证帖子点赞数量显示正确，需要记录每个帖子的点赞数量，显示到主页上（此处不需要记录点赞状态）
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPost.getId());
+                map.put("likeCount", likeCount);
                 discussPosts.add(map);
             }
         }
