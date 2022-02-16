@@ -4,8 +4,10 @@ import com.nowcoder.community2.annotation.LoginRequired;
 import com.nowcoder.community2.entity.DiscussPost;
 import com.nowcoder.community2.entity.User;
 import com.nowcoder.community2.service.DiscussPostService;
+import com.nowcoder.community2.service.FollowService;
 import com.nowcoder.community2.service.LikeService;
 import com.nowcoder.community2.service.UserService;
+import com.nowcoder.community2.util.CommunityConstant;
 import com.nowcoder.community2.util.CommunityUtil;
 import com.nowcoder.community2.util.HostHolder;
 import com.nowcoder.community2.util.SensitiveFilter;
@@ -32,7 +34,7 @@ import java.util.Date;
 @Controller
 //添加一个访问路径
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements CommunityConstant {
 
     private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -44,6 +46,9 @@ public class UserController {
 
     @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @Value("${community.path.upload}")
     private String uploadPath;
@@ -154,7 +159,19 @@ public class UserController {
         }
         model.addAttribute("user", user);
         int likeCount = likeService.findUserLikeCount(userId);
+//        获赞数量
         model.addAttribute("likeCount", likeCount);
+//        粉丝数量
+        long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+//        关注数量
+        long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
+//        当前登录用户是否关注当前界面上的人
+        boolean hasFollowed =
+                hostHolder.getUser() == null ? false : followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+        model.addAttribute("hasFollowed", hasFollowed);
+
         return "site/profile";
     }
 
