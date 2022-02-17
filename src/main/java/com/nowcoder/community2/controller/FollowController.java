@@ -86,6 +86,7 @@ public class FollowController implements CommunityConstant {
                 map.put("hasFollowed", hasFollowed);
             }
         }
+//        关注者列表
         model.addAttribute("users", userList);
         return "/site/followee";
     }
@@ -113,6 +114,7 @@ public class FollowController implements CommunityConstant {
                 map.put("hasFollowed", hasFollowed);
             }
         }
+//        粉丝列表
         model.addAttribute("users", userList);
         return "/site/follower";
     }

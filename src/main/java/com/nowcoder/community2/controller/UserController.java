@@ -116,7 +116,7 @@ public class UserController implements CommunityConstant {
     }
 
     /**
-     * 用来从本地服务器返回图片信息
+     * 用来从本地服务器返回头像图片信息
      *
      * @param filename 文件名
      * @param response 返回图片

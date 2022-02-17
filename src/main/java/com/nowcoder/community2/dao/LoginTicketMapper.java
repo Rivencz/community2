@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
+//通过redis重构登录凭证，已经不需要该类了
+@Deprecated
 public interface LoginTicketMapper {
 
 //    该接口通过注解的方式来实现对应方法
