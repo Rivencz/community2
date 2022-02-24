@@ -29,6 +29,10 @@ public class ServiceLogAspect {
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+//        由于消费者接收消息没有通过controller层而直接调用了service层方法，所以该值为null
+        if(attributes == null){
+            return;
+        }
 //        获取到了request对象，
         HttpServletRequest request = attributes.getRequest();
 //        通过request获取到用户的ip地址

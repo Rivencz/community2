@@ -39,7 +39,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
         return true;
     }
 
-//    模板引擎执行之前，将用户存放到model中，这样在前端界面就可以直接使用
+//    controller之后，模板引擎执行之前，将用户存放到model中，这样在前端界面就可以直接使用
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         

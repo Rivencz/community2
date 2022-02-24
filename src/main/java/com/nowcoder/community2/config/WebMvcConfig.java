@@ -3,6 +3,7 @@ package com.nowcoder.community2.config;
 import com.nowcoder.community2.controller.interceptor.AlphaInterceptor;
 import com.nowcoder.community2.controller.interceptor.LoginRequiredInterceptor;
 import com.nowcoder.community2.controller.interceptor.LoginTicketInterceptor;
+import com.nowcoder.community2.controller.interceptor.MessageInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -15,10 +16,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
     AlphaInterceptor alphaInterceptor;
 
     @Autowired
-    LoginTicketInterceptor loginTicketInterceptor;
+    private LoginTicketInterceptor loginTicketInterceptor;
 
     @Autowired
-    LoginRequiredInterceptor loginRequiredInterceptor;
+    private LoginRequiredInterceptor loginRequiredInterceptor;
+
+    @Autowired
+    private MessageInterceptor messageInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -31,10 +35,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 //        添加登录凭证拦截器，拦截所有路径，主要用于首页顶部信息的展示
         registry.addInterceptor(loginTicketInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
-//        拦截静态界面
+//        对需要登录的界面进行拦截处理
         registry.addInterceptor(loginRequiredInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
-
+//        拦截所有界面，显示当前用户的未读信息数量
+        registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
 
 }

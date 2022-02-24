@@ -31,4 +31,16 @@ public interface MessageMapper {
 
     //    List集合中的每个数都代表一个Message实体类的id，将这些id所对应的status进行修改
     int updateStatus(List<Integer> ids, int status);
+
+//    查询指定用户指定主题的最近一条通知
+    Message selectLatestNotice(int userId, String topic);
+
+//    查询指定用户指定主题的通知数量
+    int selectNoticeCount(int userId, String topic);
+
+//    查询指定用户(指定主题)的未读信息数量,主题可以为null
+    int selectNoticeUnreadCount(int userId, String topic);
+
+//    查询指定用户指定主题包含的message列表,分页显示
+    List<Message> selectNotices(int userId, String topic, int offset, int limit);
 }
