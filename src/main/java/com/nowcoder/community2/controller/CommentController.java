@@ -59,6 +59,16 @@ public class CommentController implements CommunityConstant {
 //        处理事件
         eventProducer.fireEvent(event);
 
+//        加更，如果是针对帖子的评论，那么同时也要修改es中的数据（因为评论数量变了
+        if(comment.getEntityType() == ENTITY_TYPE_POST){
+            event = new Event()
+                    .setTopic(TOPIC_PUBLISH)
+                    .setUserId(comment.getUserId())
+                    .setEntityType(ENTITY_TYPE_POST)
+                    .setEntityId(discussPostId);
+            eventProducer.fireEvent(event);
+        }
+
 //        发完评论之后，重定向到帖子详情页面
         return "redirect:/discuss/detail/" + discussPostId;
     }
