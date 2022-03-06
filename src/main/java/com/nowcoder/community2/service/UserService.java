@@ -11,14 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -47,19 +45,19 @@ public class UserService implements CommunityConstant {
 //    @Autowired
 //    LoginTicketMapper loginTicketMapper;
 
-//    重构，频繁访问数据库，性能太低，存放到缓存中
+    //    重构，频繁访问数据库，性能太低，存放到缓存中
     public User findUserById(int userId) {
 //        从缓存中获取
         User user = getCache(userId);
 //        如果缓存中没有，就从数据库中取，并放入缓存中
-        if(user == null){
+        if (user == null) {
             user = initCache(userId);
         }
         return user;
 //        return userMapper.selectById(userId);
     }
 
-    public User findUserByName(String username){
+    public User findUserByName(String username) {
         return userMapper.selectByName(username);
     }
 
@@ -222,25 +220,26 @@ public class UserService implements CommunityConstant {
 
     /**
      * 修改用户的头像路径
+     *
      * @param userId
      * @param headerUrl
      * @return
      */
-    public int updateHeader(int userId, String headerUrl){
+    public int updateHeader(int userId, String headerUrl) {
         int i = userMapper.updateHeader(userId, headerUrl);
 //        修改完信息清用户在redis中的缓存
         clearCache(userId);
         return i;
     }
 
-//    根据用户id，先在redis缓存中查找是否有对应实体
-    private User getCache(int userId){
+    //    根据用户id，先在redis缓存中查找是否有对应实体
+    private User getCache(int userId) {
         String userKey = RedisKeyUtil.getUser(userId);
         return (User) redisTemplate.opsForValue().get(userKey);
     }
 
-//    初始化缓存
-    private User initCache(int userId){
+    //    初始化缓存
+    private User initCache(int userId) {
 //        从数据库中取出，并放到redis缓存中
         User user = userMapper.selectById(userId);
         String userKey = RedisKeyUtil.getUser(userId);
@@ -249,10 +248,31 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
-//    如果对User进行了修改操作，就清除缓存
-    private void clearCache(int userId){
+    //    如果对User进行了修改操作，就清除缓存
+    private void clearCache(int userId) {
         String userKey = RedisKeyUtil.getUser(userId);
         redisTemplate.delete(userKey);
     }
 
+    //    获取用户权限
+    public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
+        User user = this.findUserById(userId);
+
+//        将用户权限放入到list集合中
+        List<GrantedAuthority> list = new ArrayList<>();
+        list.add(new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                switch (user.getType()) {
+                    case 1:
+                        return AUTHORITY_ADMIN;
+                    case 2:
+                        return AUTHORITY_MODERATOR;
+                    default:
+                        return AUTHORITY_USER;
+                }
+            }
+        });
+        return list;
+    }
 }
