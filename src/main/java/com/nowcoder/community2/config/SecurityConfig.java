@@ -44,6 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         "/follow",
                         "/unfollow"
                 ).hasAnyAuthority(
+//                        只有用户，管理员，版主才能访问以上路径
                         AUTHORITY_USER,
                         AUTHORITY_ADMIN,
                         AUTHORITY_MODERATOR
@@ -51,13 +52,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         "/discuss/top",
                         "/discuss/wonderful"
                 ).hasAnyAuthority(
+//                        只有版主才能点赞和加精
                         AUTHORITY_MODERATOR
                 ).antMatchers(
-                        "/discuss/delete"
+                        "/discuss/delete",
+                        "/data/**"
                 ).hasAnyAuthority(
+//                        只有管理员才能删除和查看网站数据
                         AUTHORITY_ADMIN
                 )
                 .anyRequest().permitAll()
+//                关闭csrf防御
                 .and().csrf().disable();
 
 //        如果权限不够的处理操作
@@ -79,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         }
                     }
                 })
-//                权限不够的操作
+//                登录了但是权限不够的操作
                 .accessDeniedHandler(new AccessDeniedHandler() {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException e) throws IOException, ServletException {

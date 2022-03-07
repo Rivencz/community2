@@ -1,9 +1,6 @@
 package com.nowcoder.community2.config;
 
-import com.nowcoder.community2.controller.interceptor.AlphaInterceptor;
-import com.nowcoder.community2.controller.interceptor.LoginRequiredInterceptor;
-import com.nowcoder.community2.controller.interceptor.LoginTicketInterceptor;
-import com.nowcoder.community2.controller.interceptor.MessageInterceptor;
+import com.nowcoder.community2.controller.interceptor.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,6 +21,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private MessageInterceptor messageInterceptor;
 
+    @Autowired
+    private DataInterceptor dataInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 //        注意：拦截器的拦截顺序和以下注册顺序相同！
@@ -40,6 +40,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
 //        拦截所有界面，显示当前用户的未读信息数量
         registry.addInterceptor(messageInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
+//        拦截所有界面，登录时进行UV和DAU数据的统计
+        registry.addInterceptor(dataInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg");
     }
 
