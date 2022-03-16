@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,14 +33,16 @@ public class HomeController implements CommunityConstant {
     private LikeService likeService;
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
-    public String getIndexPage(Model model, Page page) {
+    public String getIndexPage(Model model, Page page,
+                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
 //        SpringMVC会自动帮我们实例化model和page，会自动将page添加到model中，所以不需要手动进行这一步
 //        设置一下page中有两个需要服务器进行设置的参数，剩下两个是浏览器传入进来的
         page.setRows(discussPostService.findDiscussPostRows(0));
-        page.setPath("/index");
+//        注意分页路径也需要加上orderMode，否则点击分页数据会乱
+        page.setPath("/index?orderMode=" + orderMode);
 
         List<Map<String, Object>> discussPosts = new ArrayList<>();
-        List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit());
+        List<DiscussPost> list = discussPostService.findDiscussPosts(0, page.getOffset(), page.getLimit(), orderMode);
         if (list != null) {
             for (DiscussPost discussPost : list) {
 //            将每一个帖子集合和对应的user都封装到一个map中，这样显示了帖子同时也能显示他的用户名
@@ -54,6 +57,8 @@ public class HomeController implements CommunityConstant {
             }
         }
         model.addAttribute("discussPosts", discussPosts);
+        model.addAttribute("orderMode", orderMode);
+
         return "/index";
     }
 

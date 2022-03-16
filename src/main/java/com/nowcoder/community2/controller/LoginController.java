@@ -202,7 +202,7 @@ public class LoginController implements CommunityConstant {
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
-//        重定向到登陆界面
+//        重定向到登录界面
         SecurityContextHolder.clearContext();
         return "redirect:/login";
     }

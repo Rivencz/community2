@@ -14,8 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Component
-@Aspect
+//防止压测的时候一直打印日志产生影响，先将该类注释
+//@Component
+//@Aspect
 public class ServiceLogAspect {
     private static final Logger logger = LoggerFactory.getLogger(ServiceLogAspect.class);
 
@@ -33,7 +34,7 @@ public class ServiceLogAspect {
         if(attributes == null){
             return;
         }
-//        获取到了request对象，
+//        获取到了request对象
         HttpServletRequest request = attributes.getRequest();
 //        通过request获取到用户的ip地址
         String ip = request.getRemoteHost();

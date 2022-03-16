@@ -115,8 +115,8 @@ public class UserService implements CommunityConstant {
 //        先通过模板引擎得到激活页面，然后将这个页面发送给用户对应邮箱
         Context context = new Context();
         context.setVariable("email", user.getEmail());
-//        跳转到激活链接，这个链接是我们自己写的激活功能:
-//        localhost:8080/community/mail/activation/用户id/激活码
+//        跳转到激活链接，这个链接路径是我们自己写的激活功能:
+//        localhost:8080/community/activation/用户id/激活码
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
 

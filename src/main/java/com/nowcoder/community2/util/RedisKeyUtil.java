@@ -13,10 +13,13 @@ public class RedisKeyUtil {
     private static final String PREFIX_KAPTCHA = "kaptcha";
     //    存放登录凭证的key
     private static final String PREFIX_TICKET = "ticket";
+    //    存放用户实体信息
     private static final String PREFIX_USER = "user";
     //    存放UV和DAU的key
     private static final String PREFIX_UV = "uv";
     private static final String PREFIX_DAU = "dau";
+    //    存放帖子key
+    private static final String PREFIX_POST = "post";
 
 
     /**
@@ -68,7 +71,7 @@ public class RedisKeyUtil {
 
     /**
      * 获取验证码对应的key
-     * kaptcha:一个随机字符串
+     * kaptcha:一个标识用户的随机字符串 -> 登录验证码
      *
      * @param owner
      * @return
@@ -79,6 +82,7 @@ public class RedisKeyUtil {
 
     /**
      * 获取登录凭证对应的key，不再使用表login_ticket
+     * ticket:一个随机字符串 -> 一个LoginTicket类型实体
      *
      * @param ticket
      * @return
@@ -97,23 +101,28 @@ public class RedisKeyUtil {
         return PREFIX_USER + SPLIT + userId;
     }
 
-//    获取单日UV uv:time hyperloglog类型
+    //    获取单日UV uv:time hyperloglog类型
     public static String getUVKey(String date) {
         return PREFIX_UV + SPLIT + date;
     }
 
-//    获取日期区间的UV uv:start:end
-    public static String getUVKey(String startDate, String endDate){
+    //    获取日期区间的UV uv:start:end
+    public static String getUVKey(String startDate, String endDate) {
         return PREFIX_UV + SPLIT + startDate + SPLIT + endDate;
     }
 
-//    获取单日活跃 dau:time bitmap类型
+    //    获取单日活跃 dau:time bitmap类型
     public static String getDAUKey(String date) {
         return PREFIX_DAU + SPLIT + date;
     }
 
-//    获取日期区间活跃 dau:start:end
+    //    获取日期区间活跃 dau:start:end
     public static String getDAUKey(String startDate, String endDate) {
         return PREFIX_DAU + SPLIT + startDate + SPLIT + endDate;
+    }
+
+    //    获取用来存放帖子id的key（set类型）
+    public static String getPostScoreKey() {
+        return PREFIX_POST + SPLIT + "score";
     }
 }

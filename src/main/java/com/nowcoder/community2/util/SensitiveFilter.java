@@ -90,7 +90,7 @@ public class SensitiveFilter {
                     begin = ++position;
                     temp = rootNode;
                 } else {
-//                    否则，说明正在寻找符合条件的过滤词，
+//                    否则，说明正在寻找符合条件的过滤词
                     position++;
                 }
             } else {
@@ -134,6 +134,7 @@ public class SensitiveFilter {
         }
     }
 
+//    前缀树结构
     private class TrieNode {
         private boolean isKeywordEnd = false;
 
